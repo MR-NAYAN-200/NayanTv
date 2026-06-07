@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NayanTv</string>
+    <string name="loading">Loading channels…</string>
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="loading_stream">Loading stream…</string>
+</resources>
