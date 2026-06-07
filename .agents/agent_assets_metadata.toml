@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "iI-DiOTldv4iRO2XXnAmx"
+uri = "file://NayanTv.tar.gz"
+type = "unspecified"
+title = "NayanTv Android Project"
