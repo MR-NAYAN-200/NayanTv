@@ -1,59 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="#0D0D0D">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="NayanTv"
+        android:textColor="#FF4081"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:padding="14dp"
+        android:background="#1A1A1A" />
+
+    <HorizontalScrollView
+        android:id="@+id/tabScroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#1A1A1A"
-        app:elevation="4dp">
+        android:scrollbars="none">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:paddingStart="16dp">
+        <LinearLayout
+            android:id="@+id/tabRow"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="NayanTv"
-                android:textColor="#FF4081"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-
-        </androidx.appcompat.widget.Toolbar>
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="#1A1A1A"
-            app:tabGravity="fill"
-            app:tabMode="scrollable"
-            app:tabSelectedTextColor="#FF4081"
-            app:tabTextColor="#888888"
-            app:tabIndicatorColor="#FF4081"
-            app:tabIndicatorHeight="3dp" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+    </HorizontalScrollView>
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvChannels"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:padding="6dp"
             android:clipToPadding="false"
-            android:padding="8dp"
             android:visibility="gone" />
 
         <ProgressBar
@@ -65,4 +54,4 @@
 
     </FrameLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
