@@ -1,6 +1,8 @@
 package com.iptv.nayantv;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,11 +13,9 @@ import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
@@ -38,7 +38,11 @@ public class MainActivity extends AppCompatActivity {
         interface OnClick { void onClick(Channel ch); }
         private List<Channel> list = new ArrayList<>();
         private final OnClick listener;
+        private final ExecutorService imgExecutor = Executors.newFixedThreadPool(4);
+        private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
         ChannelAdapter(OnClick listener) { this.listener = listener; }
+
         void submit(List<Channel> data) { list = data; notifyDataSetChanged(); }
 
         static class VH extends RecyclerView.ViewHolder {
@@ -61,10 +65,25 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(VH holder, int position) {
             Channel ch = list.get(position);
             holder.name.setText(ch.name);
-            Glide.with(holder.logo)
-                    .load(ch.logo)
-                    .placeholder(android.R.drawable.ic_media_play)
-                    .into(holder.logo);
+            holder.logo.setImageResource(android.R.drawable.ic_media_play);
+            String logoUrl = ch.logo;
+            imgExecutor.execute(() -> {
+                try {
+                    HttpURLConnection conn = (HttpURLConnection) new URL(logoUrl).openConnection();
+                    conn.setConnectTimeout(5000);
+                    conn.setReadTimeout(5000);
+                    InputStream is = conn.getInputStream();
+                    Bitmap bmp = BitmapFactory.decodeStream(is);
+                    is.close();
+                    if (bmp != null) {
+                        mainHandler.post(() -> {
+                            if (holder.getAdapterPosition() == position) {
+                                holder.logo.setImageBitmap(bmp);
+                            }
+                        });
+                    }
+                } catch (Exception ignored) {}
+            });
             holder.itemView.setOnClickListener(v -> listener.onClick(ch));
         }
 
@@ -87,9 +106,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        RecyclerView rv       = findViewById(R.id.rvChannels);
-        ProgressBar spinner   = findViewById(R.id.progressBar);
-        LinearLayout tabRow   = findViewById(R.id.tabRow);
+        RecyclerView rv     = findViewById(R.id.rvChannels);
+        ProgressBar spinner = findViewById(R.id.progressBar);
+        LinearLayout tabRow = findViewById(R.id.tabRow);
 
         adapter = new ChannelAdapter(ch -> {
             Intent intent = new Intent(this, PlayerActivity.class);
@@ -107,8 +126,8 @@ public class MainActivity extends AppCompatActivity {
                 HttpURLConnection conn = (HttpURLConnection) new URL(API_URL).openConnection();
                 conn.setConnectTimeout(10000);
                 conn.setReadTimeout(10000);
-                BufferedReader br = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream()));
+                java.io.BufferedReader br = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(conn.getInputStream()));
                 StringBuilder sb = new StringBuilder();
                 String line;
                 while ((line = br.readLine()) != null) sb.append(line);
@@ -117,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject root = new JSONObject(sb.toString());
                 JSONObject cats = root.getJSONObject("categories");
                 Map<String, List<Channel>> data = new HashMap<>();
-
                 Iterator<String> keys = cats.keys();
                 while (keys.hasNext()) {
                     String key = keys.next();
@@ -126,12 +144,9 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < arr.length(); i++) {
                         JSONObject o = arr.getJSONObject(i);
                         ch.add(new Channel(
-                                o.getString("id"),
-                                o.getString("name"),
-                                o.getString("category"),
-                                o.getString("logo"),
-                                o.getString("m3u8")
-                        ));
+                                o.getString("id"), o.getString("name"),
+                                o.getString("category"), o.getString("logo"),
+                                o.getString("m3u8")));
                     }
                     data.put(key, ch);
                 }
@@ -145,12 +160,9 @@ public class MainActivity extends AppCompatActivity {
                         if (!allData.containsKey(cat)) continue;
                         Button btn = new Button(this);
                         btn.setText(cat);
-                        btn.setBackgroundColor(0xFF1E1E1E);
-                        btn.setTextColor(0xFFAAAAAA);
-                        btn.setPadding(32, 8, 32, 8);
+                        btn.setTextColor(0xFFCCCCCC);
                         String finalCat = cat;
-                        btn.setOnClickListener(v ->
-                                adapter.submit(allData.get(finalCat)));
+                        btn.setOnClickListener(v -> adapter.submit(allData.get(finalCat)));
                         tabRow.addView(btn);
                     }
 
@@ -165,8 +177,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 mainHandler.post(() -> {
                     spinner.setVisibility(View.GONE);
-                    Toast.makeText(this, "Error: " + e.getMessage(),
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
             }
         });
