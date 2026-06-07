@@ -7,13 +7,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.media3.common.MediaItem;
-import androidx.media3.common.Player;
-import androidx.media3.datasource.DefaultHttpDataSource;
-import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.exoplayer.hls.HlsMediaSource;
-import androidx.media3.ui.PlayerView;
 import com.bumptech.glide.Glide;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -30,11 +30,11 @@ public class PlayerActivity extends AppCompatActivity {
         String url  = getIntent().getStringExtra("url");
         String logo = getIntent().getStringExtra("logo");
 
-        TextView tvName     = findViewById(R.id.tvName);
-        ImageView ivLogo    = findViewById(R.id.ivLogo);
-        TextView tvLoading  = findViewById(R.id.tvLoading);
-        ImageButton btnBack = findViewById(R.id.btnBack);
-        PlayerView playerView = findViewById(R.id.playerView);
+        TextView tvName       = findViewById(R.id.tvName);
+        ImageView ivLogo      = findViewById(R.id.ivLogo);
+        TextView tvLoading    = findViewById(R.id.tvLoading);
+        ImageButton btnBack   = findViewById(R.id.btnBack);
+        StyledPlayerView playerView = findViewById(R.id.playerView);
 
         tvName.setText(name);
         Glide.with(this).load(logo).into(ivLogo);
